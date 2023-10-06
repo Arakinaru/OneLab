@@ -1,0 +1,22 @@
+.custom-button {
+    width: 150px;
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+.content1,
+.content2,
+.content3 {
+    display: none;
+}
+.selectionContent{
+    display: none;
+}
+
+.bestFitButton{
+    opacity: 1;
+}
+
+.nextStep{
+    opacity: 1;
+}

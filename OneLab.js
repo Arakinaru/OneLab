@@ -9,34 +9,105 @@ function updateTests(inputField, testName, timeFrame) {
     const dailyInput = row.querySelector('.test-daily');
 
     let yearlyValue = parseFloat(yearlyInput.value);
-    let monthlyValue, dailyValue;
+    let monthlyValue = parseFloat(monthlyInput.value);
+    let dailyValue = parseFloat(dailyInput.value);
 
     if (timeFrame === 'yearly') {
-        monthlyValue = yearlyValue / 12;
-        dailyValue = yearlyValue / (workingDays * workingShifts * 4);
+        monthlyValue = yearlyValue / 12 * expectedGrowth;
+        dailyValue = monthlyValue / 22;
     } else if (timeFrame === 'monthly') {
-        yearlyValue = parseFloat(monthlyInput.value) * 12;
-        dailyValue = yearlyValue / (workingDays * workingShifts * 4);
+        yearlyValue = monthlyValue * 12 * expectedGrowth;
+        dailyValue = monthlyValue / 22;
     } else if (timeFrame === 'daily') {
-        yearlyValue = parseFloat(dailyInput.value) * (workingDays * workingShifts * 4);
-        monthlyValue = yearlyValue / 12;
+        monthlyValue = dailyValue * 22;
+        yearlyValue = monthlyValue * 12 * expectedGrowth;
     }
 
-    yearlyInput.value = yearlyValue.toFixed(2);
-    monthlyInput.value = monthlyValue.toFixed(2);
-    dailyInput.value = dailyValue.toFixed(2);
+    yearlyInput.value = yearlyValue.toFixed();
+    monthlyInput.value = monthlyValue.toFixed();
+    dailyInput.value = dailyValue.toFixed();
 
-    const projectedYearly = yearlyValue * Math.pow(expectedGrowth, 1);
-    const projectedMonthly = projectedYearly / 12;
-    const projectedDaily = projectedYearly / (workingDays * workingShifts * 4);
-
-    row.querySelector('.test-yearly').value = projectedYearly.toFixed(2);
-    row.querySelector('.test-monthly').value = projectedMonthly.toFixed(2);
-    row.querySelector('.test-daily').value = projectedDaily.toFixed(2);
+    inputField.addEventListener('input', () => {
+        updateTests(inputField, inputField.dataset.testName, inputField.dataset.timeFrame);
+    });
 }
+
+function clearAllFields() {
+    // Get all the input fields on the page.
+    const inputFields = document.querySelectorAll('input');
+
+    // Clear the value of each input field.
+    inputFields.forEach(inputField => {
+        inputField.value = '';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const inputFields = document.querySelectorAll('.test-yearly, .test-monthly, .test-daily');
+
+    inputFields.forEach(inputField => {
+        inputField.addEventListener('input', () => {
+            updateTests(inputField, inputField.dataset.testName, inputField.dataset.timeFrame);
+        });
+    });
+});
 
 function getBestFit() {
-    // This is where the logic will be implemented
-    const bestFitResultElement = document.getElementById('bestFitResult');
-    bestFitResultElement.textContent = "Best Fit will be displayed here.";
+    // Get the daily number of tests for each assay.
+    const dailyBiochemicalTests = parseFloat(document.getElementById('biochemicalDaily').value);
+    const dailyElectrolytesTests = parseFloat(document.getElementById('electrolytesDaily').value);
+    const dailyImmunochemicalTests = parseFloat(document.getElementById('immunochemicalDaily').value);
+
+    // Calculate the number of analyzers required for each assay.
+    const numBiochemicalAnalyzers = Math.ceil(dailyBiochemicalTests / 10000);
+    const numElectrolytesAnalyzers = Math.ceil(dailyElectrolytesTests / 12000);
+    const numImmunochemicalAnalyzers = Math.ceil(dailyImmunochemicalTests / 800);
+
+    // Generate a string representing the best fit analyzers.
+    let bestFitAnalyzers = "";
+    if (numBiochemicalAnalyzers > 0) {
+        bestFitAnalyzers += `${numBiochemicalAnalyzers} "c 503" | `;
+    }
+    if (numElectrolytesAnalyzers > 0) {
+        bestFitAnalyzers += `${numElectrolytesAnalyzers} "e 801" | `;
+    }
+    if (numImmunochemicalAnalyzers > 0) {
+        bestFitAnalyzers += `${numImmunochemicalAnalyzers} "ISE"`;
+    }
+
+    // Remove the trailing pipe (`|`) from the string.
+    bestFitAnalyzers = bestFitAnalyzers.substring(0, bestFitAnalyzers.length);
+
+    // Display the best fit analyzers in the "Best Fit" field.
+    document.getElementById('bestFitResult').textContent = bestFitAnalyzers;
 }
+function nextStep(){
+    document.getElementById('selectionContent').style.display = 'block';
+    document.getElementById('nextStepButton').style.opacity = '0.5';
+    const scrollTrigger= document.getElementById('selectionContent')
+    scrollTrigger.scrollIntoView({behavior: 'smooth'}, true)
+}
+function toggle1(element) {
+    const content = document.querySelector('.content1');
+    changeStyle(element,content)
+}
+function toggle2(element) {
+    const content = document.querySelector('.content2');
+    changeStyle(element,content)
+}
+function toggle3(element) {
+    const content = document.querySelector('.content3');
+    changeStyle(element,content)
+}
+
+
+function changeStyle(element, content) {
+    if(element.checked){
+        content.style.display = 'block';
+    }
+    else{
+        content.style.display = 'none';
+    }
+}
+
+
